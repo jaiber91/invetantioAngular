@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActiveModel } from '../../../shared/models/active_model';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -17,7 +17,11 @@ export class ActiveService {
   getAll(): Observable<ActiveModel[]> {
     return this.http.get<{ message: string; data: any[] }>(this.API_URL).pipe(
       map((response) => response.data.map((item) => this.mapToActive(item))),
-      tap((actives) => this.itemsSubject.next(actives))
+      tap((actives) => this.itemsSubject.next(actives)),
+      catchError((error) => {
+        console.error('Error al obtener activos:', error);
+        return of([]);
+      })
     );
   }
 
@@ -27,22 +31,39 @@ export class ActiveService {
       description: active.description,
       value: active.value,
     };
-
-    return this.http
-      .post(this.API_URL, payload)
-      .pipe(tap(() => this.getAll().subscribe()));
+    return this.http.post(this.API_URL, payload).pipe(
+      tap(() => this.getAll().subscribe()),
+      catchError((error) => {
+        console.error('Error al crear activo:', error);
+        return of(null);
+      })
+    );
   }
 
   update(active: ActiveModel): Observable<any> {
     return this.http
-      .put(`${this.API_URL}/${active.id}`, active)
-      .pipe(tap(() => this.getAll().subscribe()));
+      .put(`${this.API_URL}/${active.id}`, {
+        name: active.name,
+        description: active.description,
+        value: active.value,
+      })
+      .pipe(
+        tap(() => this.getAll().subscribe()),
+        catchError((error) => {
+          console.error('Error al actualizar activo:', error);
+          return of(null);
+        })
+      );
   }
 
   delete(id: number): Observable<any> {
-    return this.http
-      .delete(`${this.API_URL}/${id}`)
-      .pipe(tap(() => this.getAll().subscribe()));
+    return this.http.delete(`${this.API_URL}/${id}`).pipe(
+      tap(() => this.getAll().subscribe()),
+      catchError((error) => {
+        console.error('Error al eliminar activo:', error);
+        return of(null);
+      })
+    );
   }
 
   getById(id: number): Observable<ActiveModel | undefined> {
