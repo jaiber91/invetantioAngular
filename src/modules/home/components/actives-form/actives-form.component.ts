@@ -30,13 +30,24 @@ export class ActivesFormComponent implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      const found = this.activeService.getById(+id);
-      if (found) {
-        this.editing = true;
-        this.form.patchValue(found);
-      }
+      this.activeService.getById(+id).subscribe({
+        next: (found) => {
+          if (found) {
+            this.editing = true;
+            this.form.patchValue(found);
+
+            setTimeout(() => {
+              this.nameInputRef?.nativeElement?.focus();
+            }, 0);
+          }
+        },
+        error: (err) => {
+          console.error('Error al obtener el activo:', err);
+        },
+      });
     }
   }
+
   private _activeToEdit: ActiveModel | null = null;
 
   @Input()
