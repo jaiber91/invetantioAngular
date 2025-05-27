@@ -1,0 +1,33 @@
+<!-- 🔍 Name Filter -->
+<div class="filter">
+  <input type="text" [(ngModel)]="nameFilter" placeholder="Search by name" (input)="filterItems()" />
+</div>
+
+<!-- 📊 Table -->
+<table>
+  <thead>
+    <tr>
+      <th (click)="sortBy('name')">Name</th>
+      <th (click)="sortBy('description')">Description</th>
+      <th (click)="sortBy('value')">Value</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of paginatedItems">
+      <td>{{ item.name }}</td>
+      <td>{{ item.description }}</td>
+      <td>{{ item.value }}</td>
+      <td>
+        <button (click)="editItem(item)">Edit</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 📄 Pagination -->
+<div class="pagination">
+  <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+  <span>Page {{ currentPage }} of {{ totalPages }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+</div>

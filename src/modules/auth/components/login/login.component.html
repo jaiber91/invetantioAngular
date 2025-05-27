@@ -1,0 +1,37 @@
+<div class="login-screen">
+  <div class="login-card">
+    <div class="login-left">
+      <h1>Bienvenidos</h1>
+      <p>
+        La tienda donde encuentras todo tu mercado facilísimo, con productos de calidad a precios baratísimos.
+      </p>
+    </div>
+
+    <div class="login-right">
+      <img src="https://tiendasisimo.com/wp-content/uploads/2024/02/Tiendasisimo-nuevo-Logo-Footer.png" alt="Logo Isimo"
+        class="logo" />
+
+      <h2>Iniciar sesión</h2>
+
+      <form (ngSubmit)="onSubmit()" [formGroup]="form">
+        <div class="form-group">
+          <input id="email" formControlName="email" type="email" placeholder="Usuario" />
+        </div>
+
+        <div class="form-group">
+          <input id="password" formControlName="password" type="password" placeholder="Contraseña" />
+        </div>
+
+        <div class="form-footer">
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" [disabled]="form.invalid">Ingresar</button>
+
+        @if (loginError) {
+        <div class="error">Credenciales inválidas. Intenta de nuevo.</div>
+        }
+      </form>
+    </div>
+  </div>
+</div>

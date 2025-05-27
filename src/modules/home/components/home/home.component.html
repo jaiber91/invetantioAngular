@@ -1,0 +1,15 @@
+<div class="botones">
+  <button (click)="toggleForm()">Crear / Editar Activo</button>
+  <button (click)="toggleTable()">Ver activos</button>
+</div>
+
+@if (mostrarFormulario) {
+<app-actives-form [activeToEdit]="activeToEdit" (save)="onSaveActive($event)"
+  (cancel)="onCancelForm()"></app-actives-form>
+}
+@if (!mostrarFormulario) {
+<app-actives-table (edit)="onEditActive($event)"></app-actives-table>
+}
+
+
+

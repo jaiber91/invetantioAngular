@@ -1,0 +1,24 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-activo">
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input id="name" formControlName="name" type="text" />
+  </div>
+
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea id="description" formControlName="description"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="value">Value</label>
+    <input id="value" formControlName="value" type="number" />
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="form.invalid">
+      {{ editing ? 'Update' : 'Create' }}
+    </button>
+    <button type="button" *ngIf="editing" (click)="cancelEdit()">Cancel</button>
+  </div>
+</form>
+
