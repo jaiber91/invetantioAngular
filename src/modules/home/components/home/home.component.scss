@@ -10,7 +10,7 @@
     font-weight: 600;
     border: none;
     border-radius: 8px;
-    background-color: #007bff;
+    background-color: #593d8f;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
@@ -24,4 +24,13 @@
       transform: translateY(0);
     }
   }
+}
+.sidenav-container {
+  height: 100vh;
+}
+.sidenav {
+  width: 240px;
+}
+.content {
+  padding: 1.5rem;
 }

@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Active } from '../../../../shared/models/active_model';
+import { ActiveModel } from '../../../../shared/models/active_model';
 import { ActiveService } from '../../services/active.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 @Component({
@@ -9,25 +10,58 @@ import { ActiveService } from '../../services/active.service';
   templateUrl: './actives-form.component.html',
   styleUrl: './actives-form.component.scss',
 })
-export class ActivesFormComponent implements OnInit, OnChanges {
-  @Input() activeToEdit: Active | null = null;
-  @Output() save = new EventEmitter<Active>();
+export class ActivesFormComponent implements OnInit {
+  @Output() save = new EventEmitter<ActiveModel>();
   @Output() cancel = new EventEmitter<void>();
 
   form!: FormGroup;
   editing = false;
 
-  constructor(private fb: FormBuilder, private activeService: ActiveService) {}
+  @ViewChild('nameInput') nameInputRef!: ElementRef;
+  constructor(
+    private fb: FormBuilder,
+    private activeService: ActiveService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      const found = this.activeService.getById(+id);
+      if (found) {
+        this.editing = true;
+        this.form.patchValue(found);
+      }
+    }
+  }
+  private _activeToEdit: ActiveModel | null = null;
+
+  @Input()
+  set activeToEdit(value: ActiveModel | null) {
+    this._activeToEdit = value;
+
+    if (value) {
+      this.editing = true;
+      this.form.patchValue(value);
+
+      Object.keys(this.form.controls).forEach((key) => {
+        const control = this.form.get(key);
+        control?.markAsTouched();
+        control?.markAsDirty();
+        control?.updateValueAndValidity();
+      });
+
+      setTimeout(() => {
+        this.nameInputRef?.nativeElement?.focus();
+      }, 0);
+    }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['activeToEdit'] && this.activeToEdit) {
-      this.editing = true;
-      this.form.patchValue(this.activeToEdit);
-    }
+  get activeToEdit(): ActiveModel | null {
+    return this._activeToEdit;
   }
 
   initForm(): void {
@@ -41,15 +75,18 @@ export class ActivesFormComponent implements OnInit, OnChanges {
 
   onSubmit(): void {
     if (this.form.valid) {
-      const active: Active = this.form.value;
+      const active: ActiveModel = this.form.value;
       if (this.editing) {
         this.activeService.update(active);
       } else {
         this.activeService.create(active);
       }
+
       this.save.emit(active);
       this.form.reset();
       this.editing = false;
+
+      this.router.navigate(['/home/table']);
     }
   }
 

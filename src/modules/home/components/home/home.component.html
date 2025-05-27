@@ -1,15 +1,13 @@
-<div class="botones">
-  <button (click)="toggleForm()">Crear / Editar Activo</button>
-  <button (click)="toggleTable()">Ver activos</button>
-</div>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav [mode]="'side'" [opened]="sidebarOpen()" class="sidenav">
+    <app-sidebar />
+  </mat-sidenav>
 
-@if (mostrarFormulario) {
-<app-actives-form [activeToEdit]="activeToEdit" (save)="onSaveActive($event)"
-  (cancel)="onCancelForm()"></app-actives-form>
-}
-@if (!mostrarFormulario) {
-<app-actives-table (edit)="onEditActive($event)"></app-actives-table>
-}
-
-
+  <mat-sidenav-content>
+    <app-header />
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
 

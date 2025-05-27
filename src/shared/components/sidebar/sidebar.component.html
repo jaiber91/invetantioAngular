@@ -1,0 +1,19 @@
+<mat-nav-list class="custom-nav-list">
+  <a mat-list-item routerLink="/home/table" routerLinkActive="active">
+    <mat-icon>table_view</mat-icon>
+    <span>Ver activos</span>
+  </a>
+  <a mat-list-item routerLink="/home/nuevo" routerLinkActive="active">
+    <mat-icon>add</mat-icon>
+    <span>Crear activo</span>
+  </a>
+
+  <div class="spacer"></div>
+
+  <button mat-button class="logout-button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Cerrar sesión</span>
+  </button>
+</mat-nav-list>
+
+

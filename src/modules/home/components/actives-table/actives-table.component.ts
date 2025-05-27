@@ -1,6 +1,10 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { Active } from '../../../../shared/models/active_model';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { ActiveModel } from '../../../../shared/models/active_model';
 import { ActiveService } from '../../services/active.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -9,84 +13,34 @@ import { ActiveService } from '../../services/active.service';
   styleUrl: './actives-table.component.scss',
 })
 export class ActivesTableComponent {
-  @Output() edit = new EventEmitter<Active>();
+  @Output() edit = new EventEmitter<ActiveModel>();
 
-  items: Active[] = [];
+  displayedColumns: string[] = ['name', 'description', 'value', 'actions'];
+  dataSource = new MatTableDataSource<ActiveModel>();
   nameFilter = '';
-  filteredItems: Active[] = [];
-  paginatedItems: Active[] = [];
 
-  currentPage = 1;
-  itemsPerPage = 5;
-  totalPages = 1;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  currentSort: keyof Active = 'name';
-  ascending = true;
-
-  constructor(private activeService: ActiveService) {}
+  constructor(private activeService: ActiveService, private router: Router) {}
 
   ngOnInit(): void {
     this.activeService.getAll().subscribe((data) => {
-      this.items = data;
-      this.applyFiltersAndSort();
+      this.dataSource.data = data;
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
   }
 
-  filterItems(): void {
-    this.currentPage = 1;
-    this.applyFiltersAndSort();
-  }
-
-  sortBy(field: keyof Active): void {
-    if (this.currentSort === field) {
-      this.ascending = !this.ascending;
-    } else {
-      this.currentSort = field;
-      this.ascending = true;
-    }
-    this.applyFiltersAndSort();
-  }
-
-  applyFiltersAndSort(): void {
-    const filtered = this.items.filter((item) =>
-      item.name.toLowerCase().includes(this.nameFilter.toLowerCase())
-    );
-
-    const sorted = [...filtered].sort((a, b) => {
-      const valA = a[this.currentSort];
-      const valB = b[this.currentSort];
-
-      if (typeof valA === 'number' && typeof valB === 'number') {
-        return this.ascending ? valA - valB : valB - valA;
-      }
-
-      return this.ascending
-        ? String(valA).localeCompare(String(valB))
-        : String(valB).localeCompare(String(valA));
-    });
-
-    this.totalPages = Math.ceil(sorted.length / this.itemsPerPage);
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    this.filteredItems = sorted;
-    this.paginatedItems = sorted.slice(start, start + this.itemsPerPage);
-  }
-
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.applyFiltersAndSort();
+  applyFilter(): void {
+    this.dataSource.filter = this.nameFilter.trim().toLowerCase();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.applyFiltersAndSort();
-    }
-  }
-
-  editItem(item: Active): void {
-    this.edit.emit(item);
+  editItem(item: ActiveModel): void {
+    this.router.navigate(['home', 'editar', item.id]);
   }
 }
 

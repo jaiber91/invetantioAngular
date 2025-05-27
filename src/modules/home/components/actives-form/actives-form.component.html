@@ -1,24 +1,23 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-activo">
-  <div class="form-group">
-    <label for="name">Name</label>
-    <input id="name" formControlName="name" type="text" />
-  </div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-activo mat-elevation-z2">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Nombre</mat-label>
+    <input matInput formControlName="name" #nameInput required />
+  </mat-form-field>
 
-  <div class="form-group">
-    <label for="description">Description</label>
-    <textarea id="description" formControlName="description"></textarea>
-  </div>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Descripción</mat-label>
+    <textarea matInput formControlName="description"></textarea>
+  </mat-form-field>
 
-  <div class="form-group">
-    <label for="value">Value</label>
-    <input id="value" formControlName="value" type="number" />
-  </div>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Valor</mat-label>
+    <input matInput type="number" formControlName="value" required />
+  </mat-form-field>
 
-  <div class="form-actions">
-    <button type="submit" [disabled]="form.invalid">
-      {{ editing ? 'Update' : 'Create' }}
+  <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      {{ editing ? 'Actualizar' : 'Crear' }}
     </button>
-    <button type="button" *ngIf="editing" (click)="cancelEdit()">Cancel</button>
+    <button *ngIf="editing" mat-button type="button" (click)="cancelEdit()">Cancelar</button>
   </div>
 </form>
-

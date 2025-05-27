@@ -1,50 +1,60 @@
 import { Injectable } from '@angular/core';
-import { Active } from '../../../shared/models/active_model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { ActiveModel } from '../../../shared/models/active_model';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ActiveService {
-  private _items: Active[] = [
-    { id: 1, name: 'Laptop', description: 'Dell XPS', value: 3000 },
-    { id: 2, name: 'Monitor', description: 'LG 27"', value: 1200 },
-    { id: 3, name: 'Keyboard', description: 'Mechanical', value: 300 },
-  ];
-
-  private itemsSubject = new BehaviorSubject<Active[]>([...this._items]);
+  //TODO: MOVER A UN .ENV O ARCHIVO GLOBAL
+  private readonly API_URL = 'http://localhost:3000/api/asset-management';
+  private itemsSubject = new BehaviorSubject<ActiveModel[]>([]);
   items$ = this.itemsSubject.asObservable();
 
-  getAll(): Observable<Active[]> {
-    return this.items$;
+  constructor(private http: HttpClient) {}
+
+  getAll(): Observable<ActiveModel[]> {
+    return this.http.get<{ message: string; data: any[] }>(this.API_URL).pipe(
+      map((response) => response.data.map((item) => this.mapToActive(item))),
+      tap((actives) => this.itemsSubject.next(actives))
+    );
   }
 
-  create(active: Active): void {
-    const newItem = { ...active, id: this.generateId() };
-    this._items.push(newItem);
-    this.itemsSubject.next([...this._items]);
+  create(active: ActiveModel): Observable<any> {
+    const payload = {
+      name: active.name,
+      description: active.description,
+      value: active.value,
+    };
+
+    return this.http
+      .post(this.API_URL, payload)
+      .pipe(tap(() => this.getAll().subscribe()));
   }
 
-  update(active: Active): void {
-    const index = this._items.findIndex((i) => i.id === active.id);
-    if (index !== -1) {
-      this._items[index] = active;
-      this.itemsSubject.next([...this._items]);
-    }
+  update(active: ActiveModel): Observable<any> {
+    return this.http
+      .put(`${this.API_URL}/${active.id}`, active)
+      .pipe(tap(() => this.getAll().subscribe()));
   }
 
-  delete(id: number): void {
-    this._items = this._items.filter((i) => i.id !== id);
-    this.itemsSubject.next([...this._items]);
+  delete(id: number): Observable<any> {
+    return this.http
+      .delete(`${this.API_URL}/${id}`)
+      .pipe(tap(() => this.getAll().subscribe()));
   }
 
-  private generateId(): number {
-    return this._items.length
-      ? Math.max(...this._items.map((i) => i.id || 0)) + 1
-      : 1;
+  getById(id: number): Observable<ActiveModel | undefined> {
+    return this.items$.pipe(map((items) => items.find((i) => i.id === id)));
   }
 
-  getById(id: number): Active | undefined {
-    return this._items.find((i) => i.id === id);
+  private mapToActive(item: any): ActiveModel {
+    return {
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      value: +item.value,
+    };
   }
 }

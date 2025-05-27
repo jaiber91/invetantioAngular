@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { Active } from '../../../../shared/models/active_model';
+import { ActiveModel } from '../../../../shared/models/active_model';
+import { Router } from '@angular/router';
+import { isSidebarOpen } from '../../../../shared/stores/layout.store';
 
 @Component({
   selector: 'app-home',
@@ -7,29 +9,5 @@ import { Active } from '../../../../shared/models/active_model';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
-  mostrarFormulario = false;
-  activeToEdit: Active | null = null;
-
-  toggleForm(): void {
-    this.mostrarFormulario = true;
-    this.activeToEdit = null;
-  }
-
-  toggleTable(): void {
-    this.mostrarFormulario = false;
-  }
-
-  onSaveActive(active: Active): void {
-    console.log('Saved:', active);
-    this.mostrarFormulario = false;
-  }
-
-  onCancelForm(): void {
-    this.mostrarFormulario = false;
-  }
-
-  onEditActive(active: Active): void {
-    this.activeToEdit = active;
-    this.mostrarFormulario = true;
-  }
+  sidebarOpen = isSidebarOpen;
 }
