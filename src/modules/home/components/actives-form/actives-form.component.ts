@@ -76,18 +76,35 @@ export class ActivesFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.valid) {
       const active: ActiveModel = this.form.value;
+
       if (this.editing) {
-        this.activeService.update(active);
+        this.activeService.update(active).subscribe({
+          next: () => {
+            this.save.emit(active);
+            this.resetFormAndNavigate();
+          },
+          error: (err) => {
+            console.error('Error al actualizar:', err);
+          },
+        });
       } else {
-        this.activeService.create(active);
+        this.activeService.create(active).subscribe({
+          next: () => {
+            this.save.emit(active);
+            this.resetFormAndNavigate();
+          },
+          error: (err) => {
+            console.error('Error al crear:', err);
+          },
+        });
       }
-
-      this.save.emit(active);
-      this.form.reset();
-      this.editing = false;
-
-      this.router.navigate(['/home/table']);
     }
+  }
+
+  private resetFormAndNavigate(): void {
+    this.form.reset();
+    this.editing = false;
+    this.router.navigate(['/home/table']);
   }
 
   cancelEdit(): void {

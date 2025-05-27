@@ -67,9 +67,16 @@ export class ActiveService {
   }
 
   getById(id: number): Observable<ActiveModel | undefined> {
-    return this.items$.pipe(map((items) => items.find((i) => i.id === id)));
+    return this.http
+      .get<{ message: string; data: any }>(`${this.API_URL}/${id}`)
+      .pipe(
+        map((response) => this.mapToActive(response.data)),
+        catchError((error) => {
+          console.error(`Error al obtener activo con ID ${id}:`, error);
+          return of(undefined);
+        })
+      );
   }
-
   private mapToActive(item: any): ActiveModel {
     return {
       id: item.id,
